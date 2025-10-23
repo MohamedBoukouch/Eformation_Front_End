@@ -8,4 +8,15 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  // theme: {
+  //   extend: {
+  //     colors: {
+  //       primary: "#F0CF29",   
+  //       secondary: "#FACC15", 
+  //       accent: "#06B6D4",    
+  //       dark: "#0F172A",     
+  //       light: "#F9FAFB",    
+  //     },
+  //   },
+  // },
 })
