@@ -1,5 +1,4 @@
 // pages/Home.jsx
-import React from "react";
 import Section_1 from "../components/Home/Section_1.jsx";
 import Section_2 from "../components/Home/Section_2.jsx";
 import "../styles/App.css";
