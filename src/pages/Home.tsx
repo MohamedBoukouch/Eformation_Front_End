@@ -5,7 +5,7 @@ import Section_3 from "../components/Home/Section_3.jsx";
 import Section_4 from "../components/Home/Section_4.jsx";
 import Section_5 from "../components/Home/Section_5.jsx";
 import Section_6 from "../components/Home/Section_6.jsx";
-
+import Footer from "../components/Footer.js";
 import "../styles/App.css";
 
 const Home : React.FC = ()=> {
@@ -24,16 +24,7 @@ const Home : React.FC = ()=> {
 
       <Section_6/>
 
-
-      <section className="bg-gray-900 text-white py-20 px-8 md:px-16 text-center">
-        <h2 className="text-3xl font-bold mb-6 md:text-2xl sm:text-xl">Prêt à commencer votre parcours ?</h2>
-        <p className="text-gray-300 mb-8 max-w-2xl mx-auto md:text-base sm:text-sm">
-          Rejoignez notre communauté d'apprenants et commencez dès aujourd'hui votre aventure vers le succès.
-        </p>
-        <button className="bg-white text-black px-10 py-4 rounded-lg font-semibold hover:bg-gray-200 transition-all duration-300 md:px-8 md:py-3">
-          Créer un compte
-        </button>
-      </section>
+      <Footer/>
 
     </div>
   );
