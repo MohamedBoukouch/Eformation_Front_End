@@ -85,7 +85,7 @@ const Section_3: React.FC = () => {
   ];
 
   return (
-    <section ref={ref} className=" py-1 px-4 sm:px-6 lg:py-20 lg:px-8">
+    <section ref={ref} className="py-1 px-4 sm:px-6 lg:py-20 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <motion.div
@@ -107,13 +107,13 @@ const Section_3: React.FC = () => {
                 duration: 0.6,
                 delay: index * 0.1
               }}
-              className="text-center  p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
+              className="text-center p-6"
             >
               {/* Animated Number */}
               <div className="mb-3">
-                <span className="text-4xl font-bold text-yellow-600">
+                <span className="text-5xl font-bold text-gray-600">
                   {stat.number}
-                  <span className="text-3xl">{stat.suffix}</span>
+                  <span className="text-4xl">{stat.suffix}</span>
                 </span>
               </div>
               
@@ -124,18 +124,6 @@ const Section_3: React.FC = () => {
             </motion.div>
           ))}
         </div>
-
-        {/* Additional Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-12"
-        >
-          <p className="text-gray-600 text-sm">
-            * Chiffres mis à jour annuellement - Données certifiées
-          </p>
-        </motion.div>
       </div>
     </section>
   );
