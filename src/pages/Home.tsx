@@ -1,6 +1,10 @@
 // pages/Home.jsx
 import Section_1 from "../components/Home/Section_1.jsx";
 import Section_2 from "../components/Home/Section_2.jsx";
+import Section_3 from "../components/Home/Section_3.jsx";
+import Section_4 from "../components/Home/Section_4.jsx";
+import Section_5 from "../components/Home/Section_5.jsx";
+
 import "../styles/App.css";
 
 const Home : React.FC = ()=> {
@@ -10,6 +14,12 @@ const Home : React.FC = ()=> {
       <Section_1/>
 
       <Section_2/>
+
+      <Section_3/>
+
+      <Section_4/>
+
+      <Section_5/>
 
       <section className="bg-gray-900 text-white py-20 px-8 md:px-16 text-center">
         <h2 className="text-3xl font-bold mb-6 md:text-2xl sm:text-xl">Prêt à commencer votre parcours ?</h2>

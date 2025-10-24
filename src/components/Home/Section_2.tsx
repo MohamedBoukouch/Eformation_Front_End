@@ -69,7 +69,7 @@ const Section_2: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={inView ? { opacity: 1 } : {}}
       transition={{ duration: 0.8 }}
-      className="bg-white py-12 px-6 sm:py-16 sm:px-8 md:py-20 md:px-12 lg:py-24"
+      className="bg-white py- px-6 sm:py-16 sm:px-8 md:py-20 md:px-12 lg:py-"
     >
       <div className="max-w-7xl mx-auto">
         {/* Mobile Layout - Stacked */}
