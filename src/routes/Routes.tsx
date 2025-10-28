@@ -11,7 +11,9 @@ const AppRoutes: React.FC = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup" element={<Signup onClose={function (): void {
+          throw new Error("Function not implemented.");
+        } } />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
