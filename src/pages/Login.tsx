@@ -46,7 +46,7 @@ const LoginPasswordStep: React.FC<{
       auth.login(userData); // store in context
       navigate("/home"); // redirect on success
     } catch (err: any) {
-      // setErrorMsg(err.message || "Email ou mot de passe incorrect");
+     
       setErrorMsg("Email ou mot de passe incorrect");
     }
   };
