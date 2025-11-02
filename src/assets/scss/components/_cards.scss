@@ -1,0 +1,17 @@
+/* Card Components */
+.card {
+  @apply rounded-lg bg-white shadow-lg;
+}
+
+.card-title {
+  @apply font-medium capitalize text-base text-gray-900;
+}
+
+.card-header {
+  @apply flex items-center justify-between px-5 pt-4;
+  @apply border-b border-indigo-50 pb-4;
+}
+
+.card-body {
+  @apply p-5;
+}

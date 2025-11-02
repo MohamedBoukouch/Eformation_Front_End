@@ -1,0 +1,45 @@
+/* Form Components */
+.form-label {
+  @apply mb-2 text-gray-600 text-sm leading-6 capitalize block w-full font-normal rtl:text-right rtl:block;
+}
+
+.text-control {
+  @apply bg-white transition duration-300 ease-in-out border border-gray-300 text-gray-900 focus:border-indigo-600 focus:outline-none rounded placeholder:text-gray-400 text-sm px-3 placeholder:font-normal block w-full;
+}
+
+/* Image Upload Component */
+.image-upload {
+  @apply relative w-full;
+  
+  &__input {
+    @apply border-2 border-dashed border-gray-300 rounded-lg p-4 text-center transition-all duration-200;
+    
+    &:hover {
+      @apply border-gray-400 bg-gray-50;
+    }
+  }
+  
+  &__preview {
+    @apply mt-4;
+    
+    &-count {
+      @apply text-sm font-medium text-gray-900 dark:text-white mb-2;
+    }
+    
+    &-grid {
+      @apply grid grid-cols-2 md:grid-cols-4 gap-3;
+    }
+    
+    &-item {
+      @apply relative transition-transform duration-200 hover:scale-[1.02];
+      
+      img {
+        @apply h-24 w-full object-cover rounded-md shadow-sm;
+      }
+      
+      .remove-btn {
+        @apply absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-80 hover:opacity-100 transition-all duration-200 hover:bg-red-600;
+      }
+    }
+  }
+}

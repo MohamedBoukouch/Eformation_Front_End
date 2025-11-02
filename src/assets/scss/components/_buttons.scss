@@ -1,0 +1,12 @@
+/* Button Components */
+.btn {
+  @apply font-medium text-sm tracking-[0.025rem] py-[10px] px-5 rounded-lg capitalize transition-all duration-150 items-center relative;
+}
+
+.btn-primary {
+  @apply bg-indigo-500 text-white hover:bg-indigo-600;
+}
+
+.btn-primary.light {
+  @apply text-indigo-500 bg-indigo-500 bg-opacity-10 hover:bg-opacity-10;
+}
