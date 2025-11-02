@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom utilities */
+@layer utilities {
+	/* shadow-dropdown: small dropdown-style shadow used by sidebar previews */
+	.shadow-dropdown {
+		@apply shadow-lg;
+	}
+}

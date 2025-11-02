@@ -1,13 +1,23 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss()
+    // Using PostCSS tailwindcss plugin via postcss.config.js instead of the Vite-specific plugin
   ],
+  css: {
+    preprocessorOptions: {
+      scss: {
+      }
+    }
+  },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
+  }
   // theme: {
   //   extend: {
   //     colors: {

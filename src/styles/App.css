@@ -1,1 +1,4 @@
-@import "tailwindcss";
+/* Import the compiled Tailwind entry (index.css) instead of trying to import the package directly */
+@import "./index.css";
+
+/* App-specific overrides can go here */

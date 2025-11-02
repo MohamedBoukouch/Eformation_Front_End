@@ -4,6 +4,11 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import Profile from "../pages/Profile";
+import ProfessorLayout from "../layouts/ProfessorLayout";
+import Dashboard from "../pages/Professor/dashboard/Dashboard";
+import Students from "../pages/Professor/manageStudent/Students";
+import Playlist from "../pages/Professor/managePlaylist/Playlist/Playlist";
+
 
 const AppRoutes: React.FC = () => {
   return (
@@ -13,7 +18,15 @@ const AppRoutes: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
-      </Routes>
+   
+
+      <Route path="/professor" element={<ProfessorLayout />}>
+            <Route index element={<Dashboard />} />  
+            <Route path="students" element={<Students />} />
+            <Route path="playlists" element={<Playlist />} /> 
+      </Route>
+
+   </Routes>
     </Router>
   );
 };

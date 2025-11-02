@@ -1,0 +1,118 @@
+/* Sidebar Components */
+/* Sidebar Structure */
+.sidebar-wrapper {
+  @apply fixed ltr:left-0 rtl:right-0 top-0 h-screen z-[999];
+  transition: width 0.2s cubic-bezier(0.39, 0.575, 0.565, 1);
+  will-change: width;
+}
+
+.sidebar-wrapper.sidebar-hovered {
+  width: 280px !important;
+}
+
+.logo-segment.logo-hovered {
+  width: 280px !important;
+}
+
+.sidebar-menu-container {
+  height: calc(100% - 4.45rem) !important;
+}
+
+/* Navigation Shadow */
+.nav-shadow {
+  background: linear-gradient(
+    rgb(255, 255, 255) 5%,
+    rgba(255, 255, 255, 75%) 45%,
+    rgba(255, 255, 255, 20%) 80%,
+    transparent
+  );
+}
+
+/* Menu Components */
+/* Single Menu Item */
+.single-menu-item {
+  @apply relative;
+}
+
+.single-menu-item .menu-label {
+  @apply text-gray-400 text-xs font-medium uppercase mb-4 mt-4 pl-8;
+}
+
+.single-menu-item > .menu-link {
+  @apply flex text-gray-600 font-medium text-sm capitalize px-6 py-3 cursor-pointer;
+}
+
+.single-menu-item .menu-icon {
+  @apply icon-box inline-flex items-center text-2xl ltr:mr-[15px] rtl:ml-[15px];
+}
+
+/* Menu Badges */
+.menu-badge {
+  @apply py-1 px-2 text-xs capitalize font-semibold rounded-[.358rem] whitespace-nowrap align-baseline inline-flex bg-yellow-100 text-yellow-900;
+}
+
+/* Menu Animation & Transitions */
+.submenu_enter-active,
+.submenu_leave-active {
+  overflow: hidden;
+  transition: all 0.34s linear;
+}
+
+.not-collapsed .has-icon {
+  transition: all 0.34s linear;
+  @apply transform rotate-180;
+}
+
+/* Nested Menus */
+.item-has-children .menu-arrow {
+  @apply text-xl rounded-full flex justify-center items-center;
+}
+
+/* Sidebar States */
+/* Closed Sidebar */
+.close_sidebar .menu-label {
+  @apply hidden;
+}
+
+.close_sidebar:not(.sidebar-hovered) .menu-arrow {
+  @apply hidden;
+}
+
+/* Hover states for closed sidebar */
+  .close_sidebar:not(.sidebar-hovered) .single-menu-item .text-box {
+  @apply absolute left-full ml-5 w-[180px] top-0 px-4 py-3 bg-white shadow-lg rounded-[4px] z-[999] invisible opacity-0 transition-all duration-150;
+}
+
+.close_sidebar:not(.sidebar-hovered) .single-menu-item:hover .text-box {
+  @apply visible opacity-100;
+}
+
+/* Active States */
+.menu-link {
+  @apply after:absolute after:left-0 after:top-0 after:h-0 after:w-1 after:bg-indigo-500 relative after:transition-all after:duration-200;
+}
+
+.menu-link.parent_active {
+  @apply after:h-full;
+}
+
+.item-has-children .parent_active {
+  @apply bg-indigo-100;
+}
+
+.item-has-children .parent_active .icon-box,
+.item-has-children .parent_active .menu-icon,
+.item-has-children .parent_active .text-box {
+  @apply text-indigo-500;
+}
+
+/* Active menu item: white text on colored background */
+.menu-item-active .menu-link {
+  @apply bg-indigo-600 after:h-full text-white;
+}
+
+.menu-item-active .menu-link .icon-box,
+.menu-item-active .menu-link .menu-icon,
+.menu-item-active .menu-link .text-box {
+  @apply text-white;
+}
