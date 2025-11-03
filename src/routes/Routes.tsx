@@ -10,14 +10,13 @@ import WaitingPage from "../pages/waitingPage";
 import ProfessorLayout from "../layouts/ProfessorLayout";
 import Dashboard from "../pages/Professor/dashboard/Dashboard";
 import Students from "../pages/Professor/manageStudent/Students";
-import Playlist from "../pages/Professor/managePlaylist/Playlist/Playlist";
-
+import Playlist from "../pages/Professor/dashboard/Playlist";
 
 const AppRoutes: React.FC = () => {
   return (
     <Router>
       <Routes>
-
+        {/* Public routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -25,15 +24,14 @@ const AppRoutes: React.FC = () => {
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/formation-player" element={<FormationPlayer />} />
         <Route path="/waitingPage" element={<WaitingPage />} />
-   
 
-      <Route path="/professor" element={<ProfessorLayout />}>
-            <Route index element={<Dashboard />} />  
-            <Route path="students" element={<Students />} />
-            <Route path="playlists" element={<Playlist />} /> 
-      </Route>
-
-    </Routes>
+        {/* Professor routes (nested inside the layout) */}
+        <Route path="/professor" element={<ProfessorLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="students" element={<Students />} />
+          <Route path="playlists" element={<Playlist />} />
+        </Route>
+      </Routes>
     </Router>
   );
 };

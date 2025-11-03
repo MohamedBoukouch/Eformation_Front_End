@@ -3,7 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import VideoPlayer from "../components/formation/VideoPlayer";
 import Playlist from "../components/formation/Playlist";
-import Header2 from "../components/Header2";
+import Header2 from "../components/Header/Header2";
 
 // Interface
 export interface VideoModule {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import Signup from '../pages/Signup';
-import Login from '../pages/Login';
+import Signup from '../../pages/Signup';
+import Login from '../../pages/Login';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

@@ -1,6 +1,6 @@
 import React from "react";
-import Header2 from "../components/Header2";
-import Footer2 from "../components/Footer2";
+import Header2 from "../components/Header/Header2";
+import Footer2 from "../components/Footer/Footer2";
 import StudentSection1 from "../components/Student/StudentSection1";
 import StudentSection2 from "../components/Student/StudentSection2";
 

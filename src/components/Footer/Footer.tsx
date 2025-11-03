@@ -7,7 +7,7 @@ import {
   faLinkedinIn
 } from "@fortawesome/free-brands-svg-icons";
 
-import LogoImg from "../assets/react.svg";
+import LogoImg from "../../assets/react.svg";
 
 const Footer: React.FC = () => {
   return (
