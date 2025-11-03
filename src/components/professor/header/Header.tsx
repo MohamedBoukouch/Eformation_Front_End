@@ -2,6 +2,7 @@ import React from "react";
 import { Menu, Bell, HelpCircle, Plus } from "lucide-react";
 import Logo from "../../../assets/react.svg";
 import UserDropdown from "./UserDropDown";
+import CreateIcon from "./CreateIcon";
 
 
 interface HeaderProps {
@@ -66,10 +67,8 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
 
-          <button className="hidden md:flex items-center gap-1 border border-neutral-700 rounded-full px-3 py-1.5 text-sm hover:bg-neutral-800 transition">
-            <Plus size={16} />
-            Create
-          </button>
+          
+          <CreateIcon />
 
           {/* User Dropdown */}
           <UserDropdown />

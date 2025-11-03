@@ -1,19 +1,16 @@
+// src/components/professor/playlist/VideoTable.tsx
 import React from "react";
 import type { VideoItem } from "./types";
 import VideoRow from "./VideoRow";
-import FilterBar from "../../ui/FilterBar";
 
-interface Props {
+interface VideosSectionProps {
   videos: VideoItem[];
+  onVideoClick?: (video: VideoItem) => void; // callback when row clicked
 }
 
-const VideoTable: React.FC<Props> = ({ videos }) => {
+const VideosSection: React.FC<VideosSectionProps> = ({ videos, onVideoClick }) => {
   return (
     <div className="bg-neutral-800 text-white h-full flex flex-col">
-      {/* Filter bar — full width, flush to edges */}
-      <div className="border-b border-neutral-700">
-        <FilterBar />
-      </div>
 
       {/* Table */}
       <div className="overflow-x-auto flex-1">
@@ -31,15 +28,19 @@ const VideoTable: React.FC<Props> = ({ videos }) => {
             </tr>
           </thead>
           <tbody>
-            {videos.map((v) => (
-              <VideoRow key={v.id} video={v} />
+            {videos.map((video) => (
+              <VideoRow
+                key={video.id}
+                video={video}
+                onClick={() => onVideoClick && onVideoClick(video)} // call parent
+              />
             ))}
           </tbody>
         </table>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-3 text-xs text-gray-400  border-neutral-700 bg-neutral-800">
+      <div className="flex items-center justify-between px-4 py-3 text-xs text-gray-400 border-neutral-700 bg-neutral-800">
         <span>
           Rows per page: <b className="text-white">30</b>
         </span>
@@ -51,4 +52,4 @@ const VideoTable: React.FC<Props> = ({ videos }) => {
   );
 };
 
-export default VideoTable;
+export default VideosSection;

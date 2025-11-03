@@ -11,6 +11,8 @@ import ProfessorLayout from "../layouts/ProfessorLayout";
 import Dashboard from "../pages/Professor/dashboard/Dashboard";
 import Students from "../pages/Professor/manageStudent/Students";
 import Playlist from "../pages/Professor/dashboard/Playlist";
+import EditPlaylist from "../pages/Professor/dashboard/edit_playlist";
+// import EditPlayList from "../pages/Professor/dashboard/G_playlist/edit_Playlist";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -24,12 +26,14 @@ const AppRoutes: React.FC = () => {
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/formation-player" element={<FormationPlayer />} />
         <Route path="/waitingPage" element={<WaitingPage />} />
+        {/* <Route path="/edit" element={<EditPlayList />} /> */}
 
         {/* Professor routes (nested inside the layout) */}
         <Route path="/professor" element={<ProfessorLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="students" element={<Students />} />
           <Route path="playlists" element={<Playlist />} />
+          <Route path="edit" element={<EditPlaylist />} />
         </Route>
       </Routes>
     </Router>

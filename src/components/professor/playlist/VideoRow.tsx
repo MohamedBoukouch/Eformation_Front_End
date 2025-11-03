@@ -3,13 +3,21 @@ import type { VideoItem } from "./types";
 
 interface Props {
   video: VideoItem;
+  onClick?: () => void; // optional callback
 }
 
-const VideoRow: React.FC<Props> = ({ video }) => {
+const VideoRow: React.FC<Props> = ({ video, onClick }) => {
   return (
-    <tr className="border-b bg-neutral-800 hover:bg-neutral-900 transition-colors">
+    <tr
+      className="border-b bg-neutral-800 hover:bg-neutral-900 transition-colors cursor-pointer"
+      onClick={onClick} // call parent when row clicked
+    >
       <td className="px-4 py-3 w-5">
-        <input type="checkbox" className="accent-gray-500" />
+        <input
+          type="checkbox"
+          className="accent-gray-500"
+          onClick={(e) => e.stopPropagation()} // prevent row click
+        />
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">

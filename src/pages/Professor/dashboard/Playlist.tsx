@@ -1,8 +1,14 @@
 import { useState } from "react";
 import type { VideoItem } from "../../../components/professor/playlist/types";
-import VideoTable from "../../../components/professor/playlist/VideoTable";
+import PlaylistSection from "../../../components/professor/filter_bar/Playlist";
+import VideosSection from "../../../components/professor/filter_bar/Videos";
+import QcmSection from "../../../components/professor/filter_bar/Qcm";
+import DocsSection from "../../../components/professor/filter_bar/Docs";
+import FilterBar from "../../../components/ui/FilterBar";
 
 const Playlist = () => {
+  const [activeTab, setActiveTab] = useState("Videos");
+
   const [videos] = useState<VideoItem[]>([
     {
       id: 1,
@@ -18,19 +24,22 @@ const Playlist = () => {
     },
   ]);
 
+  const tabs = ["Videos", "PlayLists", "QCM", "Docs"];
+
   return (
-    <main className="min-h-screen bg-neutral-800 text-white pt-10 ">
-      <div className=" mx-auto">
-        <h1 className="text-xl font-semibold mb-10 ml-10">Play Lists</h1>
+    <main className="min-h-screen bg-neutral-800 text-white pt-10">
+      <div className="mx-auto">
+        <h1 className="text-3xl font-semibold mb-10 ml-10">Channel Content</h1>
 
         {/* Tabs */}
-        <div className="flex items-center gap-8 text-sm text-gray-400 border-neutral-700 mb-6">
-          {["Inspiration", "Videos", "Shorts", "Live", "Posts", "Playlists", "Podcasts", "Courses", "Promotions", "Collaborations"].map((tab) => (
+        <div className="flex items-center gap-8 text-sm text-gray-400 border-b border-neutral-700 font-bold">
+          {tabs.map((tab) => (
             <button
               key={tab}
-              className={` ml-10 pb-3 border-b-2 transition ${
-                tab === "Videos"
-                  ? "text-white font-semibold"
+              onClick={() => setActiveTab(tab)}
+              className={`ml-10 pb-3 border-b-2 transition ${
+                activeTab === tab
+                  ? "border-blue-500 text-white font-semibold"
                   : "border-transparent hover:text-white"
               }`}
             >
@@ -38,9 +47,17 @@ const Playlist = () => {
             </button>
           ))}
         </div>
+        <div className="border-b border-neutral-700">
+          <FilterBar />
+        </div>
 
-        {/* Table Section */}
-        <VideoTable videos={videos} />
+        {/* Dynamic Section */}
+        <div className="">
+          {activeTab === "Videos" && <VideosSection videos={videos} />}
+          {activeTab === "PlayLists" && <PlaylistSection />}
+          {activeTab === "QCM" && <QcmSection />}
+          {activeTab === "Docs" && <DocsSection />}
+        </div>
       </div>
     </main>
   );
