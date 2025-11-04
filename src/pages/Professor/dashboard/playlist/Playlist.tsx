@@ -1,10 +1,10 @@
 import { useState } from "react";
-import type { VideoItem } from "../../../components/professor/playlist/types";
-import PlaylistSection from "../../../components/professor/filter_bar/Playlist";
-import VideosSection from "../../../components/professor/filter_bar/Videos";
-import QcmSection from "../../../components/professor/filter_bar/Qcm";
-import DocsSection from "../../../components/professor/filter_bar/Docs";
-import FilterBar from "../../../components/ui/FilterBar";
+import type { VideoItem } from "../../../../components/professor/playlist/types";
+import PlaylistSection from "../../../../components/professor/filter_bar/Playlist";
+import VideosSection from "../../../../components/professor/filter_bar/Videos";
+import QcmSection from "../../../../components/professor/filter_bar/Qcm";
+import DocsSection from "../../../../components/professor/filter_bar/Docs";
+import FilterBar from "../../../../components/ui/FilterBar";
 
 const Playlist = () => {
   const [activeTab, setActiveTab] = useState("Videos");

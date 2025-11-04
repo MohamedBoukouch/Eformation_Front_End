@@ -10,8 +10,10 @@ import WaitingPage from "../pages/waitingPage";
 import ProfessorLayout from "../layouts/ProfessorLayout";
 import Dashboard from "../pages/Professor/dashboard/Dashboard";
 import Students from "../pages/Professor/manageStudent/Students";
-import Playlist from "../pages/Professor/dashboard/Playlist";
-import EditPlaylist from "../pages/Professor/dashboard/edit_playlist";
+import Playlist from "../pages/Professor/dashboard/playlist/Playlist";
+import EditPlaylist from "../pages/Professor/dashboard/playlist/EditPlaylist";
+import VideoPlaylist from "../pages/Professor/dashboard/playlist/VideoPlaylist";
+
 // import EditPlayList from "../pages/Professor/dashboard/G_playlist/edit_Playlist";
 
 const AppRoutes: React.FC = () => {
@@ -34,6 +36,8 @@ const AppRoutes: React.FC = () => {
           <Route path="students" element={<Students />} />
           <Route path="playlists" element={<Playlist />} />
           <Route path="edit" element={<EditPlaylist />} />
+          <Route path="playlist/videos" element={<VideoPlaylist />} />
+
         </Route>
       </Routes>
     </Router>

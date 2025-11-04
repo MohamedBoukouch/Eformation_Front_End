@@ -27,8 +27,8 @@ const PlaylistSection: React.FC = () => {
 
   const handleVideoClick = () => {
     const editMenu = [
-      { icon: <LayoutDashboard size={20} />, label: "Details", path: "/professor/edit/details" },
-      { icon: <Video size={20} />, label: "Videos", path: "/professor/edit/videos" },
+      { icon: <LayoutDashboard size={20} />, label: "Details", path: "/professor/edit" },
+      { icon: <Video size={20} />, label: "Videos", path: "/professor/playlist/videos" },
       { icon: <Video size={20} />, label: "Analyse", path: "/professor/edit/analyse" },
     ];
 

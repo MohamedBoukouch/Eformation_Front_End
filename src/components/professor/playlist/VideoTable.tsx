@@ -15,8 +15,8 @@ const VideosSection: React.FC<VideosSectionProps> = ({ videos, onVideoClick }) =
       {/* Table */}
       <div className="overflow-x-auto flex-1">
         <table className="min-w-full text-left text-gray-300 text-sm border-neutral-700 bg-neutral-700">
-          <thead className="bg-neutral-800 text-gray-400 uppercase text-xs">
-            <tr>
+          <thead className="bg-neutral-800 border-neutral-600 text-gray-400 uppercase text-xs">
+            <tr className="border-y-2 border-neutral-700">
               <th className="px-4 py-3"></th>
               <th className="px-4 py-3 font-medium">Video</th>
               <th className="px-4 py-3 font-medium">Visibility</th>
