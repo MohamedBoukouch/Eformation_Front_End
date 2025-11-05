@@ -6,6 +6,19 @@ import QcmSection from "../../../../components/professor/filter_bar/Qcm";
 import DocsSection from "../../../../components/professor/filter_bar/Docs";
 import FilterBar from "../../../../components/ui/FilterBar";
 
+interface PlaylistItem {
+  id: number;
+  title: string;
+  description: string;
+  miniature?: string;
+  visibility: string;
+  restriction?: string;
+  dateCreation: string;
+  views: number;
+  comments: number;
+  likes: number;
+}
+
 const Playlist = () => {
   const [activeTab, setActiveTab] = useState("Videos");
 
@@ -23,6 +36,8 @@ const Playlist = () => {
       likes: 2,
     },
   ]);
+
+  
 
   const tabs = ["Videos", "PlayLists", "QCM", "Docs"];
 

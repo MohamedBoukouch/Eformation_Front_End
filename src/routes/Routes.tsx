@@ -35,7 +35,7 @@ const AppRoutes: React.FC = () => {
           <Route index element={<Dashboard />} />
           <Route path="students" element={<Students />} />
           <Route path="playlists" element={<Playlist />} />
-          <Route path="edit" element={<EditPlaylist />} />
+          <Route path="edit/:id" element={<EditPlaylist />} />
           <Route path="playlist/videos" element={<VideoPlaylist />} />
 
         </Route>
