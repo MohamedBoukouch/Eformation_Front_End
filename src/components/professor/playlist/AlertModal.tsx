@@ -7,11 +7,13 @@ interface AlertModalProps {
   onClose: () => void;
   onConfirm?: () => void;
   confirmText?: string;
-  children?: React.ReactNode;
   showInput?: boolean;
   inputValue?: string;
   setInputValue?: (val: string) => void;
   danger?: boolean;
+  // New props for file upload
+  uploadType?: "Video" | "Document" | "QCM";
+  onFileUpload?: (file: File) => void;
 }
 
 const AlertModal: React.FC<AlertModalProps> = ({
@@ -20,12 +22,20 @@ const AlertModal: React.FC<AlertModalProps> = ({
   onClose,
   onConfirm,
   confirmText = "Save",
-  children,
   showInput,
   inputValue,
   setInputValue,
   danger,
+  uploadType,
+  onFileUpload,
 }) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onFileUpload) {
+      onFileUpload(file);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-[#181818] text-white p-8 rounded-2xl shadow-lg w-full max-w-lg relative animate-fadeIn">
@@ -42,9 +52,7 @@ const AlertModal: React.FC<AlertModalProps> = ({
           </div>
           <h2 className="text-xl font-semibold text-center">{title}</h2>
           {description && (
-            <p className="text-gray-400 text-sm text-center px-2">
-              {description}
-            </p>
+            <p className="text-gray-400 text-sm text-center px-2">{description}</p>
           )}
 
           {showInput && (
@@ -56,28 +64,55 @@ const AlertModal: React.FC<AlertModalProps> = ({
             />
           )}
 
-          {children}
-
-          <div className="flex gap-3 mt-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-md"
-            >
-              Cancel
-            </button>
-            {onConfirm && (
+          {uploadType && onFileUpload && (
+            <label className="flex gap-3 justify-center mt-2 cursor-pointer">
+              <input
+                type="file"
+                accept={
+                  uploadType === "Video"
+                    ? "video/*"
+                    : uploadType === "Document"
+                    ? ".pdf,.doc,.docx"
+                    : "application/json"
+                }
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <span className="px-4 py-2 bg-white text-black rounded-md font-medium hover:bg-gray-200 transition">
+                Select File
+              </span>
               <button
-                onClick={onConfirm}
-                className={`px-4 py-2 rounded-md ${
-                  danger
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                onClick={onClose}
+                type="button"
+                className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-md"
               >
-                {confirmText}
+                Cancel
               </button>
-            )}
-          </div>
+            </label>
+          )}
+
+          {!uploadType && (
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-md"
+              >
+                Cancel
+              </button>
+              {onConfirm && (
+                <button
+                  onClick={onConfirm}
+                  className={`px-4 py-2 rounded-md ${
+                    danger
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
+                >
+                  {confirmText}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

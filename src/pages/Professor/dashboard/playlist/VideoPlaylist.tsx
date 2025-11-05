@@ -287,32 +287,18 @@ const FormationManager: React.FC = () => {
           danger
         />
       )}
+{showUploadModal && uploadType && (
+  <AlertModal
+    title={`Upload ${uploadType}`}
+    description={`Choose your ${uploadType.toLowerCase()} file from your computer.`}
+    uploadType={uploadType as "Video" | "Document" | "QCM"} // type assertion
+    onFileUpload={(file) =>
+      handleFileUpload({ target: { files: [file] } } as any)
+    }
+    onClose={() => setShowUploadModal(false)}
+  />
+)}
 
-      {showUploadModal && (
-        <AlertModal
-          title={`Upload ${uploadType}`}
-          description={`Choose your ${uploadType?.toLowerCase()} file from your computer.`}
-          onClose={() => setShowUploadModal(false)}
-        >
-          <label className="cursor-pointer">
-            <input
-              type="file"
-              accept={
-                uploadType === "Video"
-                  ? "video/*"
-                  : uploadType === "Document"
-                  ? ".pdf,.doc,.docx"
-                  : "application/json"
-              }
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-            <span className="px-4 py-2 bg-white text-black rounded-md font-medium hover:bg-gray-200 transition">
-              Select File
-            </span>
-          </label>
-        </AlertModal>
-      )}
     </div>
   );
 };
