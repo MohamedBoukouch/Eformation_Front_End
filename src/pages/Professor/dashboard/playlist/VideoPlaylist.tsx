@@ -1,3 +1,4 @@
+// src/.../VideoPlaylist.tsx
 import React, { useEffect, useRef, useState } from "react";
 import {
   Plus,
@@ -21,22 +22,26 @@ import {
 } from "../../../../services/chapterService";
 import { getElementsByChapitre } from "../../../../services/elementService";
 import { useParams } from "react-router-dom";
-
-interface Chapter {
-  id: number;
-  title: string;
-  videos: string[];
-  documents: string[];
-  qcms: string[];
-  expanded: boolean;
-  playlistId: number;
-}
+import placeholderImage from "../../../../assets/section_2_1.webp";
+import RowItem from "../../../../components/professor/playlist/RowItem";
 
 interface Element {
   id: number;
   titre: string;
   type: "VIDEO" | "DOCUMENT" | "QCM";
   lien?: string;
+  miniature?: string | null;
+  dateCreation?: string;
+}
+
+interface Chapter {
+  id: number;
+  titre: string;
+  playlistId: number;
+  expanded: boolean;
+  videos: Element[];
+  documents: Element[];
+  qcms: Element[];
 }
 
 const VideoPlaylist: React.FC = () => {
@@ -77,45 +82,45 @@ const VideoPlaylist: React.FC = () => {
     }, TOAST_DURATION);
   };
 
-  // Fetch chapters and their elements
+  // Fetch chapters + their elements
   useEffect(() => {
     if (!playlistId) return;
 
     const fetchChaptersWithElements = async () => {
       try {
-        const chapterData = await getChaptersByPlaylist(playlistId);
+        const chapterData: any[] = await getChaptersByPlaylist(playlistId);
 
-        const chaptersWithContent = await Promise.all(
-          chapterData.map(async (c: any) => {
+        const chaptersWithContent: Chapter[] = await Promise.all(
+          chapterData.map(async (c) => {
             const elements: Element[] = await getElementsByChapitre(c.id);
 
-            const videos: string[] = [];
-            const documents: string[] = [];
-            const qcms: string[] = [];
+            const videos: Element[] = [];
+            const documents: Element[] = [];
+            const qcms: Element[] = [];
 
             elements.forEach((el) => {
-              switch (el.type) {
-                case "VIDEO":
-                  videos.push(el.titre ?? "Untitled");
-                  break;
-                case "DOCUMENT":
-                  documents.push(el.titre ?? "Untitled");
-                  break;
-                case "QCM":
-                  qcms.push(el.titre ?? "Untitled");
-                  break;
-              }
+              const e: Element = {
+                id: el.id,
+                titre: el.titre ?? "Untitled",
+                type: el.type,
+                lien: el.lien,
+                miniature: el.miniature ?? null,
+                dateCreation: el.dateCreation ?? undefined,
+              };
+              if (el.type === "VIDEO") videos.push(e);
+              else if (el.type === "DOCUMENT") documents.push(e);
+              else if (el.type === "QCM") qcms.push(e);
             });
 
             return {
               id: c.id,
-              title: c.titre ?? "Untitled",
+              titre: c.titre ?? "Untitled",
+              playlistId,
+              expanded: false,
               videos,
               documents,
               qcms,
-              expanded: false,
-              playlistId,
-            };
+            } as Chapter;
           })
         );
 
@@ -133,7 +138,7 @@ const VideoPlaylist: React.FC = () => {
     };
   }, [playlistId]);
 
-  // Add, rename, delete, toggle functions (unchanged)
+  // Add chapter
   const confirmAddChapter = async () => {
     if (!chapterTitle.trim()) return;
     try {
@@ -142,12 +147,12 @@ const VideoPlaylist: React.FC = () => {
         ...prev,
         {
           id: newChapter.id,
-          title: newChapter.titre ?? chapterTitle.trim(),
+          titre: newChapter.titre ?? chapterTitle.trim(),
+          playlistId,
           videos: [],
           documents: [],
           qcms: [],
           expanded: true,
-          playlistId,
         },
       ]);
       setShowAddModal(false);
@@ -158,12 +163,13 @@ const VideoPlaylist: React.FC = () => {
     }
   };
 
+  // Rename chapter
   const confirmRename = async () => {
     if (!chapterTitle.trim() || !chapterToEdit) return;
     try {
       await updateChapter(chapterToEdit, { titre: chapterTitle.trim(), playlistId });
       setChapters((prev) =>
-        prev.map((c) => (c.id === chapterToEdit ? { ...c, title: chapterTitle.trim() } : c))
+        prev.map((c) => (c.id === chapterToEdit ? { ...c, titre: chapterTitle.trim() } : c))
       );
       setShowRenameModal(false);
       showNotification("Chapter updated successfully!", "success");
@@ -173,6 +179,7 @@ const VideoPlaylist: React.FC = () => {
     }
   };
 
+  // Delete chapter (chapter-level)
   const confirmDelete = async () => {
     if (!chapterToEdit) return;
     try {
@@ -188,9 +195,7 @@ const VideoPlaylist: React.FC = () => {
   };
 
   const toggleChapterExpand = (id: number) => {
-    setChapters((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, expanded: !c.expanded } : c))
-    );
+    setChapters((prev) => prev.map((c) => (c.id === id ? { ...c, expanded: !c.expanded } : c)));
   };
 
   const handleAddContent = (chapterId: number, type: "Video" | "Document" | "QCM") => {
@@ -203,18 +208,19 @@ const VideoPlaylist: React.FC = () => {
   const handleRename = (chapterId: number) => {
     const chapter = chapters.find((c) => c.id === chapterId);
     if (!chapter) return;
-    setChapterTitle(chapter.title);
+    setChapterTitle(chapter.titre);
     setChapterToEdit(chapterId);
     setShowRenameModal(true);
     setShowActionMenu(null);
   };
 
-  const handleDelete = (chapterId: number) => {
+  const handleDeleteChapter = (chapterId: number) => {
     setChapterToEdit(chapterId);
     setShowDeleteModal(true);
     setShowActionMenu(null);
   };
 
+  // Handle file upload (just update local state with filename for now)
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !selectedChapter || !uploadType) return;
@@ -223,10 +229,15 @@ const VideoPlaylist: React.FC = () => {
       prev.map((chapter) => {
         if (chapter.id === selectedChapter) {
           const updated = { ...chapter };
-          const filename = file.name;
-          if (uploadType === "Video" && !updated.videos.includes(filename)) updated.videos.push(filename);
-          if (uploadType === "Document" && !updated.documents.includes(filename)) updated.documents.push(filename);
-          if (uploadType === "QCM" && !updated.qcms.includes(filename)) updated.qcms.push(filename);
+          const newElement: Element = {
+            id: Date.now(), // temporary local id; replace with backend response after upload
+            titre: file.name,
+            type: uploadType === "Video" ? "VIDEO" : uploadType === "Document" ? "DOCUMENT" : "QCM",
+            miniature: null,
+          };
+          if (uploadType === "Video") updated.videos = [...updated.videos, newElement];
+          if (uploadType === "Document") updated.documents = [...updated.documents, newElement];
+          if (uploadType === "QCM") updated.qcms = [...updated.qcms, newElement];
           return updated;
         }
         return chapter;
@@ -236,13 +247,33 @@ const VideoPlaylist: React.FC = () => {
     setShowUploadModal(false);
   };
 
+  // Handler passed to RowItem: remove element from chapter by id and type
+  const handleElementDeleted = (chapterId: number, elementId: number, elementType: "VIDEO" | "DOCUMENT" | "QCM") => {
+    setChapters((prev) =>
+      prev.map((ch) => {
+        if (ch.id !== chapterId) return ch;
+        if (elementType === "VIDEO") {
+          return { ...ch, videos: ch.videos.filter((el) => el.id !== elementId) };
+        }
+        if (elementType === "DOCUMENT") {
+          return { ...ch, documents: ch.documents.filter((el) => el.id !== elementId) };
+        }
+        return { ...ch, qcms: ch.qcms.filter((el) => el.id !== elementId) };
+      })
+    );
+    showNotification("Element removed.", "success");
+  };
+
   return (
     <div className="bg-neutral-800 text-neutral-100 min-h-screen pt-10 relative">
       {/* Header */}
       <div className="flex justify-between items-center mb-8 px-6">
         <h1 className="text-2xl font-semibold">Formation Chapters</h1>
         <button
-          onClick={() => { setChapterTitle(""); setShowAddModal(true); }}
+          onClick={() => {
+            setChapterTitle("");
+            setShowAddModal(true);
+          }}
           className="flex items-center gap-2 bg-blue-600 px-4 py-2 rounded-md text-white hover:bg-blue-700 transition"
         >
           <Plus size={18} /> <span>Add Chapter</span>
@@ -258,7 +289,7 @@ const VideoPlaylist: React.FC = () => {
       )}
 
       {/* Chapters List */}
-      <div className="space-y-3">
+      <div className="space-y-3 px-6">
         {chapters.map((chapter) => (
           <div key={chapter.id} className="bg-neutral-800 border-t border-b border-neutral-700 p-4 relative">
             <div className="flex justify-between items-center">
@@ -266,7 +297,7 @@ const VideoPlaylist: React.FC = () => {
                 <button onClick={() => toggleChapterExpand(chapter.id)} className="text-gray-400 hover:text-white transition">
                   {chapter.expanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                 </button>
-                <h2 className="text-lg font-semibold">{chapter.title}</h2>
+                <h2 className="text-lg font-semibold">{chapter.titre}</h2>
               </div>
 
               <div className="relative">
@@ -284,23 +315,77 @@ const VideoPlaylist: React.FC = () => {
                       <li onClick={() => handleAddContent(chapter.id, "Document")} className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-600 cursor-pointer"><FileText size={16} /> Add Document</li>
                       <li onClick={() => handleAddContent(chapter.id, "QCM")} className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-600 cursor-pointer"><ListChecks size={16} /> Add QCM</li>
                       <li onClick={() => handleRename(chapter.id)} className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-600 cursor-pointer text-yellow-400"><Edit size={16} /> Rename</li>
-                      <li onClick={() => handleDelete(chapter.id)} className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-600 cursor-pointer text-red-400"><Trash2 size={16} /> Delete</li>
+                      <li onClick={() => handleDeleteChapter(chapter.id)} className="flex items-center gap-2 px-4 py-2 hover:bg-neutral-600 cursor-pointer text-red-400"><Trash2 size={16} /> Delete</li>
                     </ul>
                   </div>
                 )}
               </div>
             </div>
 
+            {/* Chapter content table */}
             {chapter.expanded && (
               <div className="mt-3 border-t border-neutral-700 pt-3 space-y-2 text-sm text-gray-300">
-                {chapter.videos.length === 0 && chapter.documents.length === 0 && chapter.qcms.length === 0 ? (
+                {chapter.videos.length === 0 &&
+                chapter.documents.length === 0 &&
+                chapter.qcms.length === 0 ? (
                   <p className="text-gray-500 text-sm pl-6">No content added yet.</p>
                 ) : (
-                  <>
-                    {chapter.videos.map((v, i) => (<div key={i} className="pl-6">🎬 {v}</div>))}
-                    {chapter.documents.map((d, i) => (<div key={i} className="pl-6">📄 {d}</div>))}
-                    {chapter.qcms.map((q, i) => (<div key={i} className="pl-6">📝 {q}</div>))}
-                  </>
+                  <table className="w-full text-left text-gray-300 text-sm border-neutral-800 bg-neutral-700">
+                    <thead className="bg-neutral-800 border-neutral-600 text-gray-400 uppercase text-xs">
+                      <tr className="border-y-2 border-neutral-700">
+                        <th className="px-4 py-3">Image</th>
+                        <th className="px-4 py-3 font-medium">Title</th>
+                        <th className="px-4 py-3 font-medium">Visibility</th>
+                        <th className="px-4 py-3 font-medium">Restrictions</th>
+                        <th className="px-4 py-3 font-medium">Date</th>
+                        <th className="px-4 py-3 font-medium">Videos</th>
+                        <th className="px-4 py-3 font-medium">QCM</th>
+                        <th className="px-4 py-3 font-medium">Docs</th>
+                        <th className="px-4 py-3 font-medium text-right">Actions</th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="bg-neutral-800">
+                      {chapter.videos.map((v, i) => (
+                        <RowItem
+                          key={`video-${v.id}`}
+                          id={v.id}
+                          item={v.titre}
+                          index={i}
+                          type="video"
+                          placeholderImage={v.miniature || placeholderImage}
+                          onUpdate={(item) => alert(`Update ${item}`)}
+                          onDelete={(id) => handleElementDeleted(chapter.id, id, "VIDEO")}
+                        />
+                      ))}
+
+                      {chapter.documents.map((d, i) => (
+                        <RowItem
+                          key={`doc-${d.id}`}
+                          id={d.id}
+                          item={d.titre}
+                          index={i}
+                          type="document"
+                          placeholderImage={d.miniature || placeholderImage}
+                          onUpdate={(item) => alert(`Update ${item}`)}
+                          onDelete={(id) => handleElementDeleted(chapter.id, id, "DOCUMENT")}
+                        />
+                      ))}
+
+                      {chapter.qcms.map((q, i) => (
+                        <RowItem
+                          key={`qcm-${q.id}`}
+                          id={q.id}
+                          item={q.titre}
+                          index={i}
+                          type="qcm"
+                          placeholderImage={q.miniature || placeholderImage}
+                          onUpdate={(item) => alert(`Update ${item}`)}
+                          onDelete={(id) => handleElementDeleted(chapter.id, id, "QCM")}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
                 )}
               </div>
             )}
@@ -309,14 +394,66 @@ const VideoPlaylist: React.FC = () => {
       </div>
 
       {/* Modals */}
-      {showAddModal && <AlertModal title="Add New Chapter" description="Enter a name for your new chapter." showInput inputValue={chapterTitle} setInputValue={setChapterTitle} onConfirm={confirmAddChapter} onClose={() => setShowAddModal(false)} />}
-      {showRenameModal && <AlertModal title="Rename Chapter" description="Edit the chapter title below." showInput inputValue={chapterTitle} setInputValue={setChapterTitle} onConfirm={confirmRename} onClose={() => setShowRenameModal(false)} confirmText="Save" />}
-      {showDeleteModal && <AlertModal title="Delete Chapter" description="Are you sure you want to delete this chapter? This action cannot be undone." onConfirm={confirmDelete} onClose={() => setShowDeleteModal(false)} confirmText="Delete" danger />}
-      
-      {showUploadModal && uploadType && <AlertModal title={`Upload ${uploadType}`} description={`Choose your ${uploadType.toLowerCase()} file from your computer.`} uploadType={uploadType} onFileUpload={(file) => handleFileUpload({ target: { files: [file] } } as any)} onShowAddDetails={(file) => { handleFileUpload({ target: { files: [file] } } as any); setShowUploadModal(false); setTimeout(() => setShowAddDetails(true), 300); }} onClose={() => setShowUploadModal(false)} />}
+      {showAddModal && (
+        <AlertModal
+          title="Add New Chapter"
+          description="Enter a name for your new chapter."
+          showInput
+          inputValue={chapterTitle}
+          setInputValue={setChapterTitle}
+          onConfirm={confirmAddChapter}
+          onClose={() => setShowAddModal(false)}
+        />
+      )}
+
+      {showRenameModal && (
+        <AlertModal
+          title="Rename Chapter"
+          description="Edit the chapter title below."
+          showInput
+          inputValue={chapterTitle}
+          setInputValue={setChapterTitle}
+          onConfirm={confirmRename}
+          onClose={() => setShowRenameModal(false)}
+          confirmText="Save"
+        />
+      )}
+
+      {showDeleteModal && (
+        <AlertModal
+          title="Delete Chapter"
+          description="Are you sure you want to delete this chapter? This action cannot be undone."
+          onConfirm={confirmDelete}
+          onClose={() => setShowDeleteModal(false)}
+          confirmText="Delete"
+          danger
+        />
+      )}
+
+      {showUploadModal && uploadType && (
+        <AlertModal
+          title={`Upload ${uploadType}`}
+          description={`Choose your ${uploadType.toLowerCase()} file from your computer.`}
+          uploadType={uploadType}
+          onFileUpload={(file) => handleFileUpload({ target: { files: [file] } } as any)}
+          onShowAddDetails={(file) => {
+            handleFileUpload({ target: { files: [file] } } as any);
+            setShowUploadModal(false);
+            setTimeout(() => setShowAddDetails(true), 300);
+          }}
+          onClose={() => setShowUploadModal(false)}
+        />
+      )}
 
       {showAddDetails && selectedChapter !== null && (
-        <AddDetailModal chapitreId={selectedChapter} onClose={() => setShowAddDetails(false)} onSave={(data) => { console.log("Saved data:", data); setShowAddDetails(false); }} />
+        <AddDetailModal
+          chapitreId={selectedChapter}
+          onClose={() => setShowAddDetails(false)}
+          onSave={(data) => {
+            console.log("Saved data:", data);
+            setShowAddDetails(false);
+          }}
+        />
       )}
 
       {/* Toast Notification */}

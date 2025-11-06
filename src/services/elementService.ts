@@ -51,3 +51,16 @@ export interface CreateElementData {
     return response.json();
   };
   
+  // DELETE ELEMENT
+export const deleteElement = async (id: number): Promise<string> => {
+  const response = await fetch(`http://localhost:8080/api/elements/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Failed to delete element");
+  }
+
+  return response.text(); // assuming backend returns a simple "deleted" message
+};
