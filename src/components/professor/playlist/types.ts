@@ -1,4 +1,3 @@
-// src/components/channel/types.ts
 export type VideoItem = {
     id: number;
     title: string;
