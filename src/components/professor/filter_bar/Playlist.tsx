@@ -51,11 +51,12 @@ const PlaylistSection: React.FC = () => {
   const handleVideoClick = (playlist: PlaylistItem) => {
     const editMenu = [
       { icon: <LayoutDashboard size={20} />, label: "Details", path: `/professor/edit/${playlist.id}` },
-      { icon: <Video size={20} />, label: "Videos", path: "/professor/playlist/videos" },
+      { icon: <Video size={20} />, label: "Videos", path: `/professor/playlist/${playlist.id}/videos` },
       { icon: <Video size={20} />, label: "Analyse", path: "/professor/edit/analyse" },
     ];
     changeSidebarMenu(editMenu);
     navigate(`/professor/edit/${playlist.id}`);
+  
   };
 
   if (loading) return <div>Loading playlists...</div>;

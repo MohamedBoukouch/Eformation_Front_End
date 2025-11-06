@@ -14,6 +14,7 @@ interface AlertModalProps {
   // New props for file upload
   uploadType?: "Video" | "Document" | "QCM";
   onFileUpload?: (file: File) => void;
+  onShowAddDetails?: (file: File) => void; // 👈 added prop for opening 2nd alert
 }
 
 const AlertModal: React.FC<AlertModalProps> = ({
@@ -28,11 +29,16 @@ const AlertModal: React.FC<AlertModalProps> = ({
   danger,
   uploadType,
   onFileUpload,
+  onShowAddDetails,
 }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && onFileUpload) {
-      onFileUpload(file);
+    if (file) {
+      if (onFileUpload) onFileUpload(file);
+      if (onShowAddDetails) {
+        onClose(); // 👈 close current alert
+        setTimeout(() => onShowAddDetails(file), 300); // 👈 show second alert
+      }
     }
   };
 
@@ -52,7 +58,9 @@ const AlertModal: React.FC<AlertModalProps> = ({
           </div>
           <h2 className="text-xl font-semibold text-center">{title}</h2>
           {description && (
-            <p className="text-gray-400 text-sm text-center px-2">{description}</p>
+            <p className="text-gray-400 text-sm text-center px-2">
+              {description}
+            </p>
           )}
 
           {showInput && (

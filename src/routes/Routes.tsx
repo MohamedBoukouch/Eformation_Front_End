@@ -36,8 +36,11 @@ const AppRoutes: React.FC = () => {
           <Route path="students" element={<Students />} />
           <Route path="playlists" element={<Playlist />} />
           <Route path="edit/:id" element={<EditPlaylist />} />
-          {/* <Route path="playlist/videos" element={<VideoPlaylist />} /> */}
-          <Route path="test/videos" element={<VideoPlaylist />} />
+          <Route path="playlist/videos" element={<VideoPlaylist />} />
+          <Route path="playlist/:playlistId/videos" element={<VideoPlaylist />} />
+
+
+          {/* <Route path="test/videos" element={<VideoPlaylist />} /> */}
 
         </Route>
       </Routes>
