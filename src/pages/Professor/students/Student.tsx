@@ -6,9 +6,9 @@ import {
   verifyStudent,
   deleteStudentFromPlaylist,
   sendInvitation,
-} from "../../../../services/learnFormation";
-import Toast, { type ToastType } from "../../../../components/ui/Toast";
-import AlertModal from "../../../../components/professor/playlist/AlertModal";
+} from "../../../services/learnFormation";
+import Toast, { type ToastType } from "../../../components/ui/Toast";
+import AlertModal from "../../../components/professor/playlist/AlertModal";
 
 // ---------- INTERFACE ----------
 interface LearnPlaylistItem {

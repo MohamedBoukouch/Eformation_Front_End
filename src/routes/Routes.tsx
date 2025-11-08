@@ -4,15 +4,16 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import Profile from "../pages/Profile";
-import StudentDashboard from "../pages/StudentDashboard";
+import StudentDashboard from "../pages/student/StudentDashboard";
 import FormationPlayer from "../pages/FormationPlayer";
 import WaitingPage from "../pages/waitingPage";
 import ProfessorLayout from "../layouts/ProfessorLayout";
 import Dashboard from "../pages/Professor/dashboard/Dashboard";
-import ManagmentStudents from "../pages/Professor/dashboard/students/Student";
+import ManagmentStudents from "../pages/Professor/students/Student";
 import Playlist from "../pages/Professor/dashboard/playlist/Playlist";
 import EditPlaylist from "../pages/Professor/dashboard/playlist/EditPlaylist";
 import VideoPlaylist from "../pages/Professor/dashboard/playlist/VideoPlaylist";
+import Library from "../pages/student/Library";
 
 // import EditPlayList from "../pages/Professor/dashboard/G_playlist/edit_Playlist";
 
@@ -25,10 +26,13 @@ const AppRoutes: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/student" element={<StudentDashboard />} />
         <Route path="/formation-player" element={<FormationPlayer />} />
         <Route path="/waitingPage" element={<WaitingPage />} />
         {/* <Route path="/edit" element={<EditPlayList />} /> */}
+
+        {/* Student */}
+        <Route path="/student" element={<StudentDashboard />} />
+        <Route path="/student/library" element={<Library />} />
 
         {/* Professor routes (nested inside the layout) */}
         <Route path="/professor" element={<ProfessorLayout />}>

@@ -1,5 +1,6 @@
 import React from "react";
 import { Search, User } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header2: React.FC = () => {
   return (
@@ -21,13 +22,13 @@ const Header2: React.FC = () => {
         />
       </div>
 
-      {/* Right: Navigation icons */}
+      {/* Right: Navigation links */}
       <div className="flex items-center gap-8 text-xl font-medium">
-        <a href="#" className="hover:text-gray-300">Home</a>
-        <a href="#" className="hover:text-gray-300">Library</a>
-        <a href="#" className="hover:text-gray-300">Live Sessions</a>
-        <a href="#" className="hover:text-gray-300">Dashboard</a>
-        <a href="#" className="hover:text-gray-300">Favorites</a>
+        <Link to="/" className="hover:text-gray-300">Home</Link>
+        <Link to="/student/library" className="hover:text-gray-300">Library</Link>
+        <Link to="#" className="hover:text-gray-300">Live Sessions</Link>
+        <Link to="#" className="hover:text-gray-300">Dashboard</Link>
+        <Link to="#" className="hover:text-gray-300">Favorites</Link>
         <User className="bg-[#ff6600] text-white rounded-full p-1 w-10 h-10" />
       </div>
     </header>

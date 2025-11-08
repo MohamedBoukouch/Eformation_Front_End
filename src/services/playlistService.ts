@@ -1,5 +1,23 @@
 // src/services/playlistService.ts
 
+export interface Professor {
+  id: number;
+  fullName: string;
+  email: string;
+  role: string;
+}
+
+export interface Playlist {
+  id: number;
+  title: string;
+  description: string;
+  visibility: string;
+  miniature?: string | null;
+  dateCreation: string;
+  totalDuration?: string;
+  professeur: Professor;
+}
+
 export interface PlaylistData {
   profId: number;
   title: string;
@@ -8,6 +26,29 @@ export interface PlaylistData {
   miniature?: string | null; // string, not File
 }
 
+// 🟢 Fetch all playlists
+export const fetchAllPlaylists = async (): Promise<Playlist[]> => {
+  try {
+    const response = await fetch("http://localhost:8080/api/playlists/all", {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(err || "Failed to fetch playlists");
+    }
+
+    const data: Playlist[] = await response.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(error.message || "An unexpected error occurred while fetching playlists");
+    } else {
+      throw new Error("An unknown error occurred while fetching playlists");
+    }
+  }
+};
 // Create a new playlist
 export const createPlaylist = async (data: PlaylistData) => {
   const response = await fetch("http://localhost:8080/api/playlists/create", {
