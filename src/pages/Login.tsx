@@ -3,7 +3,7 @@ import SocialButtons from "../components/Auth/SocialButtons";
 import CloseIcon from "../assets/icons/close.svg";
 import EyeOpen from "../assets/icons/eye.gif";
 import EyeClose from "../assets/icons/eye.gif";
-import { loginUser } from "../services/authService";
+import { loginUser, type UserData } from "../services/authService";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -21,12 +21,10 @@ const checkPasswordStrength = (password: string) => {
   return strength;
 };
 
-const LoginPasswordStep: React.FC<{
-  email: string ;
-  goBack: () => void;
-}> = ({ email, goBack }) => {
+const LoginPasswordStep: React.FC<{ email: string; goBack: () => void }> = ({ email, goBack }) => {
   const navigate = useNavigate();
-  const auth = useContext(AuthContext)!;
+  const auth = useContext(AuthContext);
+  if (!auth) throw new Error("AuthContext is undefined");
 
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,36 +34,33 @@ const LoginPasswordStep: React.FC<{
   const strengthColors = ["red", "orange", "yellow", "blue", "green"];
   const isValid = strength >= 3;
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg("");
+    if (!isValid) return;
 
     try {
-      const userData = await loginUser({ email, password });
+      const userData: UserData = await loginUser({ email, password });
       auth.login(userData); // store in context
-      navigate("/home"); // redirect on success
-    } catch (err: any) {
-     
+
+      // ✅ Redirect based on role
+      if (userData.role === "PROFESSEUR") {
+        navigate("/professor");
+      } else {
+        navigate("/student-home");
+      }
+    } catch (err) {
       setErrorMsg("Email ou mot de passe incorrect");
     }
   };
-  
 
   return (
     <div className="flex flex-col gap-4 mt-4">
+      <div className="bg-gray-100 px-3 py-2 rounded-md border">{email}</div>
 
-      {/* ✅ Display prefilled Email */}
-      <div className="bg-gray-100 px-3 py-2 rounded-md border">
-        {email}
-      </div>
-
-      {/* ✅ Password */}
       <div className="flex flex-col gap-1">
         <label className="font-medium text-gray-700">
           Mot de passe <span className="text-red-600">*</span>
         </label>
-
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -74,7 +69,6 @@ const LoginPasswordStep: React.FC<{
             placeholder="********"
             className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10"
           />
-
           <img
             src={showPassword ? EyeClose : EyeOpen}
             alt="eye"
@@ -92,7 +86,7 @@ const LoginPasswordStep: React.FC<{
                   width: `${(strength / 5) * 100}%`,
                   backgroundColor: strengthColors[strength - 1] || "gray",
                 }}
-              ></div>
+              />
             </div>
             <p className="text-xs text-gray-500">
               {strength < 3
@@ -135,29 +129,19 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
 
   const closeModal = () => {
     if (onClose) onClose();
-    window.location.reload();
   };
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   return (
     <div className="fixed inset-0 flex justify-center items-center z-50">
-
-      {/* Dark Background */}
-      <div
-        className="absolute inset-0 bg-opacity-50 backdrop-blur-sm"
-        onClick={closeModal}
-      ></div>
-
-      {/* Modal Container */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeModal} />
       <div className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-xl p-6">
-
         <img
           src={CloseIcon}
           className="absolute top-3 right-3 w-5 h-5 cursor-pointer"
           onClick={closeModal}
         />
-
         <h2 className="text-2xl font-bold mb-2 text-gray-800">
           Se connecter ou créer un compte
         </h2>
@@ -165,7 +149,6 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
           Profitez de votre temps libre pour apprendre.
         </p>
 
-        {/* ✅ Email Screen */}
         {!useEmail ? (
           <>
             <div className="flex flex-col gap-1 mb-4">
@@ -178,24 +161,18 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
                 placeholder="you@example.com"
                 onChange={(e) => setEmail(e.target.value)}
                 className={`border rounded-md px-3 py-2 focus:outline-none ${
-                  emailValid ? "border-green-500" : "border-red-400"
+                  emailValid ? "border-green-500" : "border-gray-300"
                 }`}
               />
-
               {!emailValid && email.length > 0 && (
                 <p className="text-xs text-red-500">Email invalide</p>
               )}
             </div>
 
-            <SocialButtons
-              onEmailClick={() => emailValid && setUseEmail(true)}
-            />
+            <SocialButtons onEmailClick={() => emailValid && setUseEmail(true)} />
           </>
         ) : (
-          <LoginPasswordStep
-            email={email}
-            goBack={() => setUseEmail(false)}
-          />
+          <LoginPasswordStep email={email} goBack={() => setUseEmail(false)} />
         )}
       </div>
     </div>
@@ -203,7 +180,3 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
 };
 
 export default Login;
-function setSuccessMsg(arg0: string) {
-  throw new Error("Function not implemented.");
-}
-
