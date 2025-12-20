@@ -7,15 +7,20 @@ interface SignupFirstViewProps {
   onNext: () => void;
 }
 
-const SignupFirstView: React.FC<SignupFirstViewProps> = ({ email, setEmail, onNext }) => {
+const SignupFirstView: React.FC<SignupFirstViewProps> = ({
+  email,
+  setEmail,
+  onNext,
+}) => {
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   return (
-    <div>
+    <div className="bg-white p-6 rounded-xl">
       <div className="flex flex-col gap-1 mb-4">
         <label className="font-medium text-gray-700">
           Email <span className="text-red-600">*</span>
         </label>
+
         <input
           type="email"
           value={email}
@@ -25,6 +30,7 @@ const SignupFirstView: React.FC<SignupFirstViewProps> = ({ email, setEmail, onNe
             emailValid ? "border-green-500" : "border-red-400"
           }`}
         />
+
         {!emailValid && email.length > 0 && (
           <p className="text-xs text-red-500">Email invalide</p>
         )}

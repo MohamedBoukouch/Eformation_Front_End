@@ -1,10 +1,11 @@
-
+// services/signupService.ts
 export interface SignupData {
-  fullName: String,
+  fullName: string;
   email: string;
   password: string;
-  role: String;
-  uniquePath: String
+  role: "PROFESSEUR"; // always professor
+  uniquePath: string;
+  packId: number;
 }
 
 export const signupUser = async (data: SignupData) => {
@@ -19,8 +20,8 @@ export const signupUser = async (data: SignupData) => {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || "signup failed");
+    throw new Error(errorText || "Signup failed");
   }
 
-  return response.json(); // returns user info
+  return response.json(); // returns signup info
 };
