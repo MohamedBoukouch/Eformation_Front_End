@@ -6,10 +6,11 @@ import { fetchAllPacks, type Pack } from "../../services/packService";
 
 interface Props {
   email: string;
-  selectedPackId?: number; // ✅ pack chosen before
+  selectedPackId?: number;
   onBack: () => void;
-  onOtpSent: (email: string) => void;
+  onOtpSent: (email: string, role: "ETUDIANT" | "PROFESSEUR") => void;
 }
+
 
 const getPasswordStrength = (p: string) => {
   let s = 0;
@@ -81,7 +82,7 @@ const SignupSecondView: React.FC<Props> = ({
 
     try {
       await signupUser(data);
-      onOtpSent(email);
+      onOtpSent(email,"PROFESSEUR");
     } catch (error: any) {
       alert("Erreur d'inscription : " + error.message);
     } finally {

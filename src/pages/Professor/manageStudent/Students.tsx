@@ -1,4 +1,4 @@
-import StudentManagement from "./StudentTable";
+// import StudentManagement from "./StudentTable";
 
 
 
@@ -7,17 +7,17 @@ import StudentManagement from "./StudentTable";
 
 
 
-const Students  : React.FC = ()=>{
+// const Students  : React.FC = ()=>{
 
-    return (
+//     return (
 
-        <>
-        <StudentManagement/>
-        </>
-    )
-
-
-}
+//         <>
+//         <StudentManagement/>
+//         </>
+//     )
 
 
-export default Students;
+// }
+
+
+// export default Students;

@@ -1,14 +1,21 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 
+/* =======================
+   User model
+======================= */
 export interface UserData {
+  id: number;
   fullName: string;
   email: string;
-  role: string;
+  role: string; // <-- change from "ETUDIANT" | "PROFESSEUR" to string
   token: string;
   profVerified: boolean;
 }
 
+/* =======================
+   Context type
+======================= */
 interface AuthContextType {
   user: UserData | null;
   login: (userData: UserData) => void;
@@ -16,25 +23,43 @@ interface AuthContextType {
   isLoggedIn: boolean;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+/* =======================
+   Context
+======================= */
+export const AuthContext = createContext<AuthContextType | null>(null);
 
+/* =======================
+   Provider
+======================= */
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserData | null>(() => {
-    const saved = localStorage.getItem("authUser");
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [user, setUser] = useState<UserData | null>(null);
 
+  /* 🔹 Load user from localStorage on app start */
+  useEffect(() => {
+    const savedUser = localStorage.getItem("authUser");
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error("Invalid authUser in localStorage");
+        localStorage.removeItem("authUser");
+      }
+    }
+  }, []);
+
+  /* 🔹 Login */
   const login = (userData: UserData) => {
     setUser(userData);
     localStorage.setItem("authUser", JSON.stringify(userData));
   };
 
+  /* 🔹 Logout */
   const logout = () => {
     setUser(null);
     localStorage.removeItem("authUser");
   };
 
-  const isLoggedIn = !!user;
+  const isLoggedIn = Boolean(user);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isLoggedIn }}>

@@ -3,9 +3,10 @@ import CloseIcon from "../assets/icons/close.svg";
 import SignupFirstView from "../components/Auth/SignupFirstView";
 import SignupSecondView from "../components/Auth/SignupSecondView";
 import SignupOtpView from "../components/Auth/SignupOtpView";
+import SignupThirdView from "../components/Auth/SignupThirdView";
 
 const Signup = () => {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"ETUDIANT" | "PROFESSEUR">("ETUDIANT");
 
@@ -16,7 +17,7 @@ const Signup = () => {
       <div
         className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
         onClick={handleRefresh}
-      ></div>
+      />
 
       <div className="relative z-10 w-full max-w-md bg-white rounded-xl shadow-xl p-6">
         <img
@@ -36,19 +37,33 @@ const Signup = () => {
             onNext={() => setStep(2)}
           />
         )}
-
         {step === 2 && (
           <SignupSecondView
             email={email}
             onBack={() => setStep(1)}
-            onOtpSent={(email: string, selectedRole: "ETUDIANT" | "PROFESSEUR") => {
+            onOtpSent={(email, selectedRole) => {
+              setEmail(email);
               setRole(selectedRole);
               setStep(3);
             }}
           />
         )}
 
-        {step === 3 && <SignupOtpView email={email} role={role} />}
+
+        {step === 3 && (
+          <SignupOtpView
+            email={email}
+            role={role}
+            onVerified={() => setStep(4)} // ✅ OTP OK
+          />
+        )}
+
+        {step === 4 && (
+          <SignupThirdView
+            email={email}
+            onBack={handleRefresh}
+          />
+        )}
       </div>
     </div>
   );

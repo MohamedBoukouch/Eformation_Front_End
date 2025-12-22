@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import ReactDOM from "react-dom";
 import { Plus, Trash2, X, ChevronDown } from "lucide-react";
 import {
@@ -9,6 +9,8 @@ import {
 } from "../../../services/learnFormation";
 import Toast, { type ToastType } from "../../../components/ui/Toast";
 import AlertModal from "../../../components/professor/playlist/AlertModal";
+import { AuthContext } from "../../../context/AuthContext";
+
 
 // ---------- INTERFACE ----------
 interface LearnPlaylistItem {
@@ -154,13 +156,21 @@ const Student: React.FC = () => {
   const [menuOpenFor, setMenuOpenFor] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
   const [deleteAlert, setDeleteAlert] = useState<{ show: boolean; id?: number }>({ show: false });
-  const profId = 40;
+
+
+
+  const auth = useContext(AuthContext);
+  if (!auth) throw new Error("AuthContext is undefined");
+
+  const professorId = auth.user?.id;
 
   // Fetch students
   useEffect(() => {
+    if (!professorId) return;
+
     const fetchData = async () => {
       try {
-        const data = await getAllStudentsByProfessor(profId);
+        const data = await getAllStudentsByProfessor(professorId);
         const formatted = data.map((item: any) => ({
           ...item,
           status: item.verified ? "Verified" : "Pending",
@@ -171,7 +181,7 @@ const Student: React.FC = () => {
       }
     };
     fetchData();
-  }, [profId]);
+  }, [professorId]);
 
   const filters: Array<"Verified" | "Not Verified"> = ["Verified", "Not Verified"];
 
@@ -224,14 +234,16 @@ const Student: React.FC = () => {
 
   const handleAddStudent = async (email: string) => {
     try {
+      if (!professorId) return;
+
       if (!students.length) return;
   
       const playlistId = students[0].playlist.id;
   
       const res = await sendInvitation({
-        studentEmail: email,  // pass the email as required
-        playlistId,
-        professorId: profId,
+        studentEmail: email, 
+        playlistId : 24,
+        professorId: professorId,
       });
   
       setToast({ message: res.message, type: "success" });

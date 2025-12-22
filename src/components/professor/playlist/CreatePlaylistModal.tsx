@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { createPlaylist } from "../../../services/playlistService";
 import Toast from "../../../components/ui/Toast";
 import type { ToastType } from "../../../components/ui/Toast";
+import { AuthContext } from "../../../context/AuthContext";
 
 interface CreatePlaylistModalProps {
   isOpen: boolean;
@@ -9,10 +10,12 @@ interface CreatePlaylistModalProps {
 }
 
 const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({ isOpen, onClose }) => {
+  const auth = useContext(AuthContext);
+  
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [visibility, setVisibility] = useState("Public");
-  const [miniature, setMiniature] = useState<string>(""); // Always string
+  const [visibility, setVisibility] = useState("public"); // Changed to lowercase
+  const [miniature, setMiniature] = useState<string>("");
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>("");
@@ -23,14 +26,23 @@ const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({ isOpen, onClo
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
-      setMiniature(""); // string even if no file
+      setMiniature("");
       setPreview(null);
       return;
     }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setToastMessage("Please select an image file");
+      setToastType("error");
+      setTimeout(() => setToastMessage(""), 4000);
+      return;
+    }
+    
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = String(reader.result || "");
-      setMiniature(base64); // always string
+      setMiniature(base64);
       setPreview(base64);
     };
     reader.onerror = () => {
@@ -45,14 +57,31 @@ const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({ isOpen, onClo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate professor ID
+    if (!auth || !auth.user?.id) {
+      setToastMessage("User not authenticated");
+      setToastType("error");
+      setTimeout(() => setToastMessage(""), 4000);
+      return;
+    }
+
+    // Validate required fields
+    if (!title.trim()) {
+      setToastMessage("Title is required");
+      setToastType("error");
+      setTimeout(() => setToastMessage(""), 4000);
+      return;
+    }
+
     setLoading(true);
 
     const payload = {
-      profId: 40,
+      profId: auth.user.id, // ✅ Now guaranteed to be a number
       title: title.trim(),
       description: description.trim(),
-      visibility,
-      miniature, // always string
+      visibility: visibility.toLowerCase(), // Ensure lowercase
+      miniature, // Will be empty string if no image
     };
 
     try {
@@ -63,15 +92,15 @@ const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({ isOpen, onClo
       // Reset form
       setTitle("");
       setDescription("");
-      setVisibility("Public");
-      setMiniature(""); // string reset
+      setVisibility("public");
+      setMiniature("");
       setPreview(null);
 
       setTimeout(() => setToastMessage(""), 4000);
       setTimeout(() => onClose(), 500);
     } catch (err: any) {
-      console.error(err);
-      setToastMessage(err?.message || "Failed to create playlist");
+      console.error("Create playlist error:", err);
+      setToastMessage(err?.response?.data?.message || err?.message || "Failed to create playlist");
       setToastType("error");
       setTimeout(() => setToastMessage(""), 4000);
     } finally {

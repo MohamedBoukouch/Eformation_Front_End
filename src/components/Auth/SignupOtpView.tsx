@@ -1,18 +1,21 @@
 import React, { useState } from "react";
 import { verifyOtp } from "../../services/otpService";
 import type { OtpData } from "../../services/otpService";
-import { useNavigate } from "react-router-dom";
 
 interface SignupOtpViewProps {
   email: string;
   role: "ETUDIANT" | "PROFESSEUR";
+  onVerified: () => void; // ✅ callback
 }
 
-const SignupOtpView: React.FC<SignupOtpViewProps> = ({ email, role }) => {
+const SignupOtpView: React.FC<SignupOtpViewProps> = ({
+  email,
+  role,
+  onVerified,
+}) => {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const navigate = useNavigate();
 
   const handleVerify = async () => {
     if (otp.length !== 6) {
@@ -26,15 +29,8 @@ const SignupOtpView: React.FC<SignupOtpViewProps> = ({ email, role }) => {
     const data: OtpData = { email, codeOtp: otp };
 
     try {
-      const result = await verifyOtp(data);
-
-      if (result === "Account verified") {
-        if (role === "ETUDIANT") navigate("/student");
-        else if (role === "PROFESSEUR") navigate("/waitingPage");
-        else navigate("/home");
-      } else {
-        setErrorMsg(result || "Code OTP invalide");
-      }
+      await verifyOtp(data); // ✅ if API fails → catch
+      onVerified(); // ✅ SUCCESS → go to step 4
     } catch (err: any) {
       setErrorMsg(err.message || "Code OTP invalide ou expiré");
     } finally {
@@ -62,7 +58,7 @@ const SignupOtpView: React.FC<SignupOtpViewProps> = ({ email, role }) => {
       <button
         onClick={handleVerify}
         disabled={loading}
-        className="w-full px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+        className="w-full px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400"
       >
         {loading ? "Vérification..." : "Confirmer le code"}
       </button>
