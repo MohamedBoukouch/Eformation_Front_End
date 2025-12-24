@@ -7,139 +7,172 @@ import {
   deleteStudentFromPlaylist,
   sendInvitation,
 } from "../../../services/learnFormation";
+import { fetchPlaylistsByProfId, type Playlist } from "../../../services/playlistService";
 import Toast, { type ToastType } from "../../../components/ui/Toast";
 import AlertModal from "../../../components/professor/playlist/AlertModal";
 import { AuthContext } from "../../../context/AuthContext";
 
-
-// ---------- INTERFACE ----------
+/* ===================== TYPES ===================== */
 interface LearnPlaylistItem {
-  id: number;
+  id: string | number; // string to allow unique ids per playlist
   verified: boolean;
   student: {
-    id: number;
-    fullName: string;
-    email: string;
+    studentId: number;
+    studentName: string;
+    studentEmail: string;
   };
   playlist: {
-    id: number;
-    titre: string;
+    playlistId: number;
+    playlistTitle: string;
     description: string;
   };
-  professor: {
-    id: number;
-    fullName: string;
-    email: string;
+  professor?: {
+    id?: number;
+    fullName?: string;
+    email?: string;
   };
-  status?: "Verified" | "Pending";
+  status: "Verified" | "Pending";
 }
 
-// ---------- STATUS STYLES ----------
-const STATUS_STYLES: Record<"Verified" | "Pending", { background: string; color: string; border: string }> =
-{
-  Verified: { background: "#ecfdf5", color: "#065f46", border: "#86efac" },
-  Pending: { background: "#fff7ed", color: "#7c2d12", border: "#fdba74" },
-};
+type AnchorRect =
+  | {
+      top: number;
+      left: number;
+      right: number;
+      bottom: number;
+      width: number;
+      height: number;
+    }
+  | null;
 
-// ---------- PORTAL STATUS MENU ----------
-type AnchorRect = { top: number; left: number; right: number; bottom: number; width: number; height: number } | null;
+/* ===================== CONSTANTS ===================== */
+const STATUS_STYLES = {
+  Verified: { dot: "#22c55e", text: "text-green-400" },
+  Pending: { dot: "#f97316", text: "text-orange-400" },
+} as const;
 
+/* ===================== STATUS MENU ===================== */
 const StatusMenu: React.FC<{
   anchorRect: AnchorRect;
   currentStatus: "Verified" | "Pending";
   onSelect: (status: "Verified" | "Pending") => void;
   onClose: () => void;
 }> = ({ anchorRect, currentStatus, onSelect, onClose }) => {
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleOutside = (e: MouseEvent) => {
-      if (!menuRef.current) return;
-      if (!(e.target instanceof Node)) return;
-      if (!menuRef.current.contains(e.target as Node)) onClose();
+    const close = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
     };
-    const handleScrollResize = () => onClose();
-    document.addEventListener("mousedown", handleOutside);
-    window.addEventListener("scroll", handleScrollResize, true);
-    window.addEventListener("resize", handleScrollResize);
-    return () => {
-      document.removeEventListener("mousedown", handleOutside);
-      window.removeEventListener("scroll", handleScrollResize, true);
-      window.removeEventListener("resize", handleScrollResize);
-    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, [onClose]);
 
   if (!anchorRect) return null;
 
-  const top = anchorRect.bottom + 6 + window.scrollY;
-  const left = anchorRect.left + window.scrollX;
-
-  const menu = (
-    <div ref={menuRef} style={{ position: "fixed", top, left, zIndex: 9999, minWidth: 140 }}>
-      <div className="bg-neutral-800 border border-neutral-700 rounded-md shadow-lg overflow-hidden">
-        {(["Verified", "Pending"] as const).map((status) => (
-          <button
-            key={status}
-            onClick={() => {
-              onSelect(status);
-              onClose();
-            }}
-            className={`w-full text-left px-4 py-2 text-sm hover:bg-neutral-700 ${
-              status === currentStatus ? "text-green-400" : "text-gray-300"
-            }`}
-          >
-            {status}
-          </button>
-        ))}
-      </div>
-    </div>
+  return ReactDOM.createPortal(
+    <div
+      ref={ref}
+      style={{
+        position: "fixed",
+        top: anchorRect.bottom + 6,
+        left: anchorRect.left,
+        zIndex: 9999,
+        minWidth: 140,
+      }}
+      className="bg-neutral-800 border border-neutral-700 rounded-md shadow-lg"
+    >
+      {(["Verified", "Pending"] as const).map((s) => (
+        <button
+          key={s}
+          onClick={() => {
+            onSelect(s);
+            onClose();
+          }}
+          className={`block w-full px-4 py-2 text-left text-sm hover:bg-neutral-700 ${
+            s === currentStatus ? "text-green-400" : "text-gray-300"
+          }`}
+        >
+          {s}
+        </button>
+      ))}
+    </div>,
+    document.body
   );
-
-  return ReactDOM.createPortal(menu, document.body);
 };
 
-// ---------- ADD STUDENT MODAL ----------
+/* ===================== ADD STUDENT MODAL ===================== */
 const AddStudentModal: React.FC<{
   onClose: () => void;
-  onSave: (email: string) => void;
+  onSave: (data: { email: string; name: string; playlistId: number }) => void;
 }> = ({ onClose, onSave }) => {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [playlistId, setPlaylistId] = useState<number | null>(null);
 
-  const handleSubmit = () => {
-    if (email.trim() === "") return;
-    onSave(email);
+  const auth = useContext(AuthContext);
+  if (!auth) throw new Error("AuthContext missing");
+  const profId = auth.user?.id;
+
+  useEffect(() => {
+    if (!profId) return;
+    fetchPlaylistsByProfId(profId).then((res) => {
+      setPlaylists(res);
+      if (res.length) setPlaylistId(res[0].id);
+    });
+  }, [profId]);
+
+  const submit = () => {
+    if (!email || !name || !playlistId) return;
+    onSave({ email, name, playlistId });
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-      <div className="bg-neutral-800 rounded-xl shadow-lg p-6 w-[90%] max-w-md border border-neutral-700">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-white">Add New Student</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
-            <X size={20} />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-neutral-800 p-6 rounded-xl w-[90%] max-w-md border border-neutral-700">
+        <div className="flex justify-between mb-4">
+          <h2 className="text-lg font-semibold">Add Student</h2>
+          <button onClick={onClose}>
+            <X />
           </button>
         </div>
-        <label className="block text-sm text-gray-300 mb-2">Student Email:</label>
+
         <input
-          type="email"
-          placeholder="Enter student's email"
+          className="w-full mb-3 p-2 bg-neutral-700 rounded"
+          placeholder="Student name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          className="w-full mb-3 p-2 bg-neutral-700 rounded"
+          placeholder="Student email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 rounded-md bg-neutral-700 text-white border border-neutral-600 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none"
         />
-        <div className="mt-5 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-md bg-neutral-700 hover:bg-neutral-600 text-gray-300 text-sm"
-          >
+
+        <select
+          className="w-full mb-4 p-2 bg-neutral-700 rounded"
+          value={playlistId ?? ""}
+          onChange={(e) => setPlaylistId(Number(e.target.value))}
+        >
+          {playlists.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.title}
+            </option>
+          ))}
+        </select>
+
+        <div className="flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 bg-neutral-700 rounded">
             Cancel
           </button>
           <button
-            onClick={handleSubmit}
-            className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white text-sm font-medium"
+            onClick={submit}
+            className="px-4 py-2 bg-green-600 rounded"
           >
-            Add Student
+            Add
           </button>
         </div>
       </div>
@@ -147,225 +180,166 @@ const AddStudentModal: React.FC<{
   );
 };
 
-// ---------- MAIN COMPONENT ----------
+/* ===================== MAIN COMPONENT ===================== */
 const Student: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<"Verified" | "Not Verified">("Verified");
-  const [showModal, setShowModal] = useState(false);
   const [students, setStudents] = useState<LearnPlaylistItem[]>([]);
+  const [filter, setFilter] = useState<"Verified" | "Pending">("Verified");
   const [menuAnchor, setMenuAnchor] = useState<AnchorRect>(null);
-  const [menuOpenFor, setMenuOpenFor] = useState<number | null>(null);
+  const [menuId, setMenuId] = useState<string | number | null>(null);
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
-  const [deleteAlert, setDeleteAlert] = useState<{ show: boolean; id?: number }>({ show: false });
-
-
+  const [showModal, setShowModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | number | null>(null);
 
   const auth = useContext(AuthContext);
-  if (!auth) throw new Error("AuthContext is undefined");
-
+  if (!auth) throw new Error("AuthContext missing");
   const professorId = auth.user?.id;
 
   // Fetch students
   useEffect(() => {
     if (!professorId) return;
-
-    const fetchData = async () => {
-      try {
-        const data = await getAllStudentsByProfessor(professorId);
-        const formatted = data.map((item: any) => ({
-          ...item,
-          status: item.verified ? "Verified" : "Pending",
-        }));
-        setStudents(formatted);
-      } catch (error) {
-        console.error("Error fetching students:", error);
-      }
-    };
-    fetchData();
+    getAllStudentsByProfessor(professorId)
+      .then((data: any[]) => {
+        setStudents(
+          data.map((i, index) => ({
+            id: `${i.studentId}-${i.playlistId}-${index}`, // unique string id
+            student: {
+              studentId: i.studentId,
+              studentName: i.studentName,
+              studentEmail: i.studentEmail,
+            },
+            playlist: {
+              playlistId: i.playlistId,
+              playlistTitle: i.playlistTitle,
+              description: i.playlistTitle || "",
+            },
+            verified: i.verified,
+            status: i.verified ? "Verified" : "Pending",
+          }))
+        );
+      })
+      .catch(() => setToast({ message: "Failed to fetch students", type: "error" }));
   }, [professorId]);
 
-  const filters: Array<"Verified" | "Not Verified"> = ["Verified", "Not Verified"];
-
-  const filteredStudents = students.filter((s) => {
-    if (activeFilter === "Verified") return s.status === "Verified";
-    if (activeFilter === "Not Verified") return s.status === "Pending";
-    return true;
-  });
-
-  const openMenu = (event: React.MouseEvent, itemId: number) => {
-    const target = event.currentTarget as HTMLElement;
-    const rect = target.getBoundingClientRect();
-    setMenuAnchor({
-      top: rect.top,
-      left: rect.left,
-      right: rect.right,
-      bottom: rect.bottom,
-      width: rect.width,
-      height: rect.height,
-    });
-    setMenuOpenFor(itemId);
-  };
-
-  const closeMenu = () => {
-    setMenuAnchor(null);
-    setMenuOpenFor(null);
-  };
-
-  const handleStatusChange = async (id: number, newStatus: "Verified" | "Pending") => {
-    setStudents((prev) => prev.map((s) => (s.id === id ? { ...s, status: newStatus } : s)));
+  const handleInvite = async (d: { email: string; name: string; playlistId: number }) => {
+    if (!professorId) return;
     try {
-      await verifyStudent(id, newStatus === "Verified");
-      setToast({ message: `Status updated to ${newStatus}`, type: "success" });
-    } catch (error) {
-      console.error(error);
-      setToast({ message: "Failed to update status", type: "error" });
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteStudentFromPlaylist(id);
-      setStudents((prev) => prev.filter((s) => s.id !== id));
-      setToast({ message: "Student deleted successfully", type: "success" });
-    } catch (error) {
-      console.error(error);
-      setToast({ message: "Failed to delete student", type: "error" });
-    }
-  };
-
-  const handleAddStudent = async (email: string) => {
-    try {
-      if (!professorId) return;
-
-      if (!students.length) return;
-  
-      const playlistId = students[0].playlist.id;
-  
       const res = await sendInvitation({
-        studentEmail: email, 
-        playlistId : 24,
-        professorId: professorId,
+        studentEmail: d.email,
+        studentName: d.name,
+        playlistId: d.playlistId,
+        professorId,
+        loginLink: "http://localhost:3000/login",
       });
-  
       setToast({ message: res.message, type: "success" });
     } catch (error: any) {
-      console.error(error);
       setToast({ message: error.message || "Failed to send invitation", type: "error" });
     }
   };
-  
-  
+
+  const handleStatus = async (id: string | number, s: "Verified" | "Pending") => {
+    await verifyStudent(Number(id.toString().split("-")[0]), s === "Verified"); // send correct studentId
+    setStudents((prev) =>
+      prev.map((x) => (x.id === id ? { ...x, status: s, verified: s === "Verified" } : x))
+    );
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    await deleteStudentFromPlaylist(Number(deleteId.toString().split("-")[0]));
+    setStudents((prev) => prev.filter((x) => x.id !== deleteId));
+    setDeleteId(null);
+  };
 
   return (
-    <main className="min-h-screen bg-neutral-900 text-white pt-10 pl-1 pr-5 relative">
-      {toast && <Toast message={toast.message} type={toast.type} />}
-      {deleteAlert.show && (
-        <AlertModal
-          title="Confirm Delete"
-          description="Are you sure you want to delete this student?"
-          onClose={() => setDeleteAlert({ show: false })}
-          onConfirm={() => {
-            if (deleteAlert.id) handleDelete(deleteAlert.id);
-            setDeleteAlert({ show: false });
-          }}
-          danger
-        />
-      )}
+    <main className="bg-neutral-900 min-h-screen p-10 text-white">
+      {toast && <Toast {...toast} />}
 
-      <div className="mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6 pl-10 pr-2">
-          <h1 className="text-3xl font-semibold">All Students</h1>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-md transition"
-          >
-            <Plus size={18} /> Add Student
-          </button>
-        </div>
-
-        {/* Filters */}
-        <div className="flex items-center gap-6 text-sm pl-10 text-gray-300 border-b border-neutral-700 pb-4 mb-6">
-          {filters.map((f) => (
-            <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
-              className={`pb-2 border-b-2 transition ${
-                activeFilter === f ? "border-green-500 text-white font-semibold" : "border-transparent hover:text-white"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto bg-neutral-800 rounded-xl shadow-md border border-neutral-700">
-          <table className="min-w-full text-sm text-gray-300">
-            <thead className="bg-neutral-700 text-gray-200 uppercase text-xs">
-              <tr>
-                <th className="px-5 py-3 text-left">Student</th>
-                <th className="px-5 py-3 text-left">Email</th>
-                <th className="px-5 py-3 text-left">Playlist</th>
-                <th className="px-5 py-3 text-left">Description</th>
-                <th className="px-5 py-3 text-left">Status</th>
-                <th className="px-5 py-3 text-left">Delete</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {filteredStudents.map((item) => {
-                const styles = STATUS_STYLES[item.status || "Pending"];
-                return (
-                  <tr key={item.id} className="border-t border-neutral-700 hover:bg-neutral-700/40 transition">
-                    <td className="px-5 py-4 font-medium">{item.student.fullName}</td>
-                    <td className="px-5 py-4">{item.student.email}</td>
-                    <td className="px-5 py-4">{item.playlist.titre}</td>
-                    <td className="px-5 py-4">{item.playlist.description}</td>
-
-                    <td className="px-5 py-4 relative">
-                      <div
-                        className="flex items-center gap-2 cursor-pointer select-none"
-                        onClick={(e) => openMenu(e, item.id)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => { if (e.key === "Enter") openMenu(e as any, item.id); }}
-                      >
-                        <span className="w-2 h-2 rounded-full" style={{ background: styles.color }} />
-                        <span className={`capitalize ${item.status === "Verified" ? "text-green-400" : "text-orange-400"}`}>
-                          {item.status}
-                        </span>
-                        <ChevronDown size={16} />
-                      </div>
-                    </td>
-
-                    <td className="px-5 py-4 text-center">
-                      <button
-                        onClick={() => setDeleteAlert({ show: true, id: item.id })}
-                        className="text-red-500 hover:text-red-600 transition"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+      <div className="flex justify-between mb-6">
+        <h1 className="text-3xl font-semibold">Students</h1>
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-green-600 px-4 py-2 rounded flex gap-2"
+        >
+          <Plus size={18} /> Add Student
+        </button>
       </div>
 
-      {menuOpenFor !== null && menuAnchor && (
+      <div className="mb-4 flex gap-6">
+        {(["Verified", "Pending"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={filter === f ? "text-white" : "text-gray-400"}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      <table className="w-full bg-neutral-800 rounded">
+        <thead className="bg-neutral-700 text-xs">
+          <tr>
+            <th className="p-3 text-left">Student</th>
+            <th className="p-3 text-left">Email</th>
+            <th className="p-3 text-left">Playlist</th>
+            <th className="p-3 text-left">Status</th>
+            <th className="p-3 text-center">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {students
+            .filter((s) => s.status === filter)
+            .map((s) => (
+              <tr key={s.id} className="border-t border-neutral-700">
+                <td className="p-3">{s.student.studentName}</td>
+                <td className="p-3">{s.student.studentEmail}</td>
+                <td className="p-3">{s.playlist.playlistTitle}</td>
+                <td className="p-3">
+                  <div
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={(e) => {
+                      setMenuAnchor(e.currentTarget.getBoundingClientRect());
+                      setMenuId(s.id);
+                    }}
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{ background: STATUS_STYLES[s.status].dot }}
+                    />
+                    <span className={STATUS_STYLES[s.status].text}>{s.status}</span>
+                    <ChevronDown size={16} />
+                  </div>
+                </td>
+                <td className="p-3 text-center">
+                  <button onClick={() => setDeleteId(s.id)}>
+                    <Trash2 className="text-red-500" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+
+      {menuId && menuAnchor && (
         <StatusMenu
           anchorRect={menuAnchor}
-          currentStatus={students.find((s) => s.id === menuOpenFor)?.status ?? "Pending"}
-          onSelect={(status) => {
-            if (menuOpenFor !== null) handleStatusChange(menuOpenFor, status);
-          }}
-          onClose={closeMenu}
+          currentStatus={students.find((s) => s.id === menuId)?.status ?? "Pending"}
+          onSelect={(s) => handleStatus(menuId, s)}
+          onClose={() => setMenuId(null)}
         />
       )}
 
-      {showModal && <AddStudentModal onClose={() => setShowModal(false)} onSave={handleAddStudent} />}
+      {showModal && <AddStudentModal onClose={() => setShowModal(false)} onSave={handleInvite} />}
+
+      {deleteId && (
+        <AlertModal
+          title="Delete Student"
+          description="Are you sure?"
+          danger
+          onClose={() => setDeleteId(null)}
+          onConfirm={handleDelete}
+        />
+      )}
     </main>
   );
 };

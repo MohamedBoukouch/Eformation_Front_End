@@ -1,5 +1,3 @@
-// src/api/learnFormation.ts
-
 export interface LearnPlaylistRequest {
   studentId: number;
   playlistId: number;
@@ -26,7 +24,7 @@ export interface LearnPlaylistResponse {
 }
 
 /**
- * 🔹 Student requests access to a playlist
+ * Student requests access
  */
 export const requestAccess = async (data: LearnPlaylistRequest) => {
   const response = await fetch(
@@ -42,71 +40,56 @@ export const requestAccess = async (data: LearnPlaylistRequest) => {
   );
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || "Failed to request access");
+    throw new Error(await response.text());
   }
 
   return response.json() as Promise<LearnPlaylistResponse>;
 };
 
 /**
- * 🔹 Professor fetches all students linked to him
+ * Professor fetches students
  */
 export const getAllStudentsByProfessor = async (profId: number) => {
   const response = await fetch(
     `http://localhost:8080/api/learn-playlist/prof/${profId}/students`,
-    { method: "GET", headers: { Accept: "application/json" } }
+    { headers: { Accept: "application/json" } }
   );
 
-  if (!response.ok) throw new Error("Failed to fetch students");
+  if (!response.ok) {
+    throw new Error("Failed to fetch students");
+  }
+
   return response.json() as Promise<LearnPlaylistResponse[]>;
 };
 
 /**
- * 🔹 Professor fetches pending students
+ * Verify student
  */
-export const getPendingStudents = async (profId: number) => {
-  const response = await fetch(
-    `http://localhost:8080/api/learn-playlist/prof/${profId}/students/pending`,
-    { method: "GET", headers: { Accept: "application/json" } }
-  );
-
-  if (!response.ok) throw new Error("Failed to fetch pending students");
-  return response.json() as Promise<LearnPlaylistResponse[]>;
-};
-
-/**
- * 🔹 Professor fetches verified students
- */
-export const getVerifiedStudents = async (profId: number) => {
-  const response = await fetch(
-    `http://localhost:8080/api/learn-playlist/prof/${profId}/students/verified`,
-    { method: "GET", headers: { Accept: "application/json" } }
-  );
-
-  if (!response.ok) throw new Error("Failed to fetch verified students");
-  return response.json() as Promise<LearnPlaylistResponse[]>;
-};
-
-/**
- * 🔹 Professor verifies a student's access request
- */
-export const verifyStudent = async (learnPlaylistId: number, verified: boolean) => {
+export const verifyStudent = async (
+  learnPlaylistId: number,
+  verified: boolean
+) => {
   const response = await fetch(
     `http://localhost:8080/api/learn-playlist/${learnPlaylistId}/verify`,
     {
       method: "PUT",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
       body: JSON.stringify({ verified }),
     }
   );
 
-  if (!response.ok) throw new Error("Failed to verify student");
+  if (!response.ok) {
+    throw new Error("Failed to verify student");
+  }
+
   return response.json() as Promise<LearnPlaylistResponse>;
 };
 
 /**
- * 🔹 Professor deletes a student from a playlist
+ * Delete student
  */
 export const deleteStudentFromPlaylist = async (learnPlaylistId: number) => {
   const response = await fetch(
@@ -114,35 +97,45 @@ export const deleteStudentFromPlaylist = async (learnPlaylistId: number) => {
     { method: "DELETE", headers: { Accept: "application/json" } }
   );
 
-  if (!response.ok) throw new Error("Failed to delete student");
+  if (!response.ok) {
+    throw new Error("Failed to delete student");
+  }
+
   return response.json() as Promise<{ message: string }>;
 };
 
 /**
- * 🔹 Professor sends an invitation email to a student
+ * Invitation
  */
 export interface SendInvitationRequest {
   studentEmail: string;
+  studentName: string;
+  loginLink: string;
   playlistId: number;
   professorId: number;
 }
 
 export const sendInvitation = async (data: SendInvitationRequest) => {
-  try {
-    const response = await fetch(`http://localhost:8080/api/learn-playlist/invite`, {
+  const response = await fetch(
+    "http://localhost:8080/api/learn-playlist/invite",
+    {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
       body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "Failed to send invitation");
     }
+  );
 
-    const result = await response.json();
-    return { message: result.message || `Invitation sent successfully to ${data.studentEmail}` };
-  } catch (error: any) {
-    throw new Error(error.message || "Failed to send invitation");
+  if (!response.ok) {
+    throw new Error(await response.text());
   }
+
+  const result = await response.json();
+  return {
+    message:
+      result.message ||
+      `Invitation sent successfully to ${data.studentEmail}`,
+  };
 };

@@ -61,7 +61,7 @@ export const createPlaylist = async (data: PlaylistData) => {
       title: data.title,
       description: data.description,
       visibility: data.visibility,
-      miniature: data.miniature || null,
+      miniature: "data.miniature" || null,
     }),
   });
 
