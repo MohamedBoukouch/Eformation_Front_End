@@ -30,13 +30,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, customMenu = null, onBack }) 
   const defaultMenu = [
     { icon: <LayoutDashboard size={20} />, label: "Dashboard", path: "/professor" },
     { icon: <Video size={20} />, label: "Playlists", path: "/professor/playlists" },
-    { icon: <BarChart2 size={20} />, label: "Analytics", path: "/professor/analytics" },
+    // { icon: <BarChart2 size={20} />, label: "Analytics", path: "/professor/analytics" },
     { icon: <Users size={20} />, label: "Community", path: "/professor/students" },
-    { icon: <Languages size={20} />, label: "Languages", path: "/professor/languages" },
-    { icon: <Shield size={20} />, label: "Content detection", path: "/professor/detection" },
-    { icon: <DollarSign size={20} />, label: "Earn", path: "/professor/earn" },
-    { icon: <Wand2 size={20} />, label: "Customization", path: "/professor/customization" },
-    { icon: <Music size={20} />, label: "Audio library", path: "/professor/cc" },
+    // { icon: <Languages size={20} />, label: "Languages", path: "/professor/languages" },
+    // { icon: <Shield size={20} />, label: "Content detection", path: "/professor/detection" },
+    // { icon: <DollarSign size={20} />, label: "Earn", path: "/professor/earn" },
+    // { icon: <Wand2 size={20} />, label: "Customization", path: "/professor/customization" },
+    // { icon: <Music size={20} />, label: "Audio library", path: "/professor/cc" },
   ];
 
   const menuToShow = customMenu ?? defaultMenu;

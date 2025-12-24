@@ -24,7 +24,7 @@ const Header2: React.FC = () => {
 
       {/* Right: Navigation links */}
       <div className="flex items-center gap-8 text-xl font-medium">
-        <Link to="/" className="hover:text-gray-300">Home</Link>
+        <Link to="/student" className="hover:text-gray-300">Home</Link>
         <Link to="/student/library" className="hover:text-gray-300">Library</Link>
         <Link to="#" className="hover:text-gray-300">Live Sessions</Link>
         <Link to="#" className="hover:text-gray-300">Dashboard</Link>

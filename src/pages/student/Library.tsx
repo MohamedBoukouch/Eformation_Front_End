@@ -114,7 +114,6 @@ const StudentLibrary: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f9fafb]">
-      <Header2 />
       <main className="flex-grow px-6 md:px-16 py-10">
         <h2 className="text-3xl font-bold mb-10 text-gray-800">
           📚 Bibliothèque des Formations
@@ -211,7 +210,6 @@ const StudentLibrary: React.FC = () => {
         )}
       </main>
 
-      <Footer2 />
 
       {showConfirm && (
         <AlertAccessModal
